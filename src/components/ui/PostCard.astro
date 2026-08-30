@@ -1,0 +1,33 @@
+---
+interface Props {
+  title: string;
+  href: string;
+  description: string;
+  date: string;
+  tags?: string[];
+  /** 额外的筛选属性(逗号分隔),透传到 data-tags,Task 8 筛选用 */
+  dataTags?: string;
+}
+const { title, href, description, date, tags = [], dataTags } = Astro.props;
+---
+
+<article
+  data-note-card
+  data-tags={dataTags ?? tags.join(',')}
+  class="glass-panel corner-bracket group relative overflow-hidden rounded-lg p-6 transition-all duration-300 hover:-translate-y-1 hover:border-secondary"
+>
+  <div class="mb-3 flex items-center justify-between gap-2">
+    {
+      tags.length > 0 && (
+        <span class="rounded border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
+          {tags[0]}
+        </span>
+      )
+    }
+    <span class="ml-auto font-mono text-xs text-secondary opacity-70">{date}</span>
+  </div>
+  <h3 class="font-display text-lg font-bold text-primary transition-colors group-hover:text-secondary">
+    <a href={href}>{title}</a>
+  </h3>
+  <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-on-surface-variant">{description}</p>
+</article>
