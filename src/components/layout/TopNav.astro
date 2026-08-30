@@ -1,0 +1,124 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/notes/', label: 'Notes' },
+  { href: '/docs/', label: 'Docs' },
+  { href: '/essays/', label: 'Essays' },
+];
+const current = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? current === '/' : current.startsWith(href));
+---
+
+<nav
+  class="fixed inset-x-0 top-0 z-50 border-b border-primary/20 bg-surface/80 backdrop-blur-md"
+  transition:persist="topnav"
+>
+  <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-16">
+    <a href="/" class="glow-text font-display text-xl font-bold tracking-tight text-primary">NEON_LOG</a>
+    <div class="hidden items-center gap-8 md:flex">
+      {
+        links.map((l) => (
+          <a
+            href={l.href}
+            aria-current={isActive(l.href) ? 'page' : undefined}
+            class:list={[
+              'font-mono text-sm uppercase tracking-wider transition-colors',
+              isActive(l.href)
+                ? 'border-b-2 border-secondary pb-0.5 font-bold text-secondary'
+                : 'text-on-surface-variant hover:text-secondary',
+            ]}
+          >
+            {l.label}
+          </a>
+        ))
+      }
+    </div>
+    <div class="flex items-center gap-1">
+      <button
+        type="button"
+        data-theme-toggle
+        aria-label="切换主题"
+        class="rounded-full p-2 text-secondary transition-colors hover:bg-secondary/10"
+      >
+        <Icon name="material-symbols:brightness-6-outline" class="text-xl" />
+      </button>
+      <button
+        type="button"
+        data-menu-toggle
+        aria-label="菜单"
+        class="rounded-full p-2 text-secondary transition-colors hover:bg-secondary/10 md:hidden"
+      >
+        <Icon name="material-symbols:menu" class="text-xl" />
+      </button>
+    </div>
+  </div>
+  <div data-mobile-menu hidden class="border-t border-outline-variant/40 bg-surface/95 px-4 py-3 md:hidden">
+    {
+      links.map((l) => (
+        <a href={l.href} class="block py-2 font-mono text-sm uppercase tracking-wider text-on-surface-variant hover:text-secondary">
+          {l.label}
+        </a>
+      ))
+    }
+  </div>
+</nav>
+
+<script>
+  /* ===== 主题圆形扩散(规格 §4.2,whyself 方案)—— document 级事件委托,天然兼容 ClientRouter ===== */
+  const applyTheme = (theme: string) => {
+    window.dispatchEvent(new CustomEvent('nl:theme', { detail: theme }));
+    document.dispatchEvent(new Event('themechange'));
+  };
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    // —— 主题切换 ——
+    const toggle = target.closest<HTMLElement>('[data-theme-toggle]');
+    if (toggle) {
+      const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+      const persist = () => {
+        try {
+          localStorage.setItem('theme', next);
+        } catch {
+          /* 私密模式等存储失败:忽略 */
+        }
+      };
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!document.startViewTransition || reduced) {
+        applyTheme(next);
+        persist();
+        return;
+      }
+      const x = (e as MouseEvent).clientX || window.innerWidth - 48;
+      const y = (e as MouseEvent).clientY || 48;
+      const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+      const transition = document.startViewTransition(() => applyTheme(next));
+      transition.ready
+        .then(() => {
+          document.documentElement.animate(
+            {
+              clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`],
+            },
+            {
+              duration: 520,
+              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+              pseudoElement: '::view-transition-new(root)',
+            },
+          );
+        })
+        .catch(() => {});
+      transition.finished.finally(persist);
+      return;
+    }
+
+    // —— 移动菜单 ——
+    const menuBtn = target.closest<HTMLElement>('[data-menu-toggle]');
+    if (menuBtn) {
+      const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+      if (menu) menu.hidden = !menu.hidden;
+    }
+  });
+</script>
