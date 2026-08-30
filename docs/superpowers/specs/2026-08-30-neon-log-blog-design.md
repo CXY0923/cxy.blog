@@ -107,7 +107,9 @@
 - `PostLayout`(笔记/随笔详情):面包屑 → 标题 → 标签行(日期/阅读时长/tags)→ 阅读进度条 → 正文(prose)→ 上一篇/下一篇
 - `DocLayout`(文档详情):DocTree + 正文 + TOC 三栏;正文区与 PostLayout 同规格;不做版本徽章
 
-导航结构:TopNav 四项 Home / Notes / Docs / Essays,当前项下划线高亮;移动端折叠为汉堡菜单。Footer:版权行 + GITHUB / RSS 占位链接 + 主题切换按钮(移动端)。
+导航结构:TopNav 四项 Home / Notes / Docs / Essays,当前项下划线高亮;移动端折叠为汉堡菜单。Footer:版权行 + 链接组(GITHUB 指向真实仓库,其余为 `href="#"` 装饰链接)。
+
+列表页(首页最新文章、notes、docs、tags)不做分页,全量渲染——内容量级为作品集占位,无分页必要。
 
 ## 6. 内容模型
 
@@ -126,7 +128,7 @@ draft:       z.boolean().default(false),
 - 明确不做学习进度条(SYNC_PROGRESS)与文档版本徽章;列表卡片改为显示 `description` 摘要
 - 派生数据(构建时计算,`src/lib/`):正文字数 → 预计阅读时长(中文按 400 字/分钟,向上取整);标签 → 计数聚合(标签云、标签页)
 - `draft: true` 的文章在 production build 中被过滤
-- 占位内容:notes 4 篇、docs 3 组 6 篇、essays 4 篇(含 1 篇配图),复用原稿中的示例文案与配图风格
+- 占位内容:notes 4 篇、docs 3 组 6 篇、essays 4 篇(含 1 篇配图)。文案沿用原稿示例主题;**配图不外链原稿的 googleusercontent 地址(会过期),改为本地生成的 SVG/渐变占位图,风格贴原稿霓虹气质**
 
 ## 7. 阅读体验包(文章/文档详情页)
 
