@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1326"/>
+      <stop offset="1" stop-color="#2d3449"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4cd7f6"/>
+      <stop offset="0.5" stop-color="#ddb7ff"/>
+      <stop offset="1" stop-color="#ffb0cd"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <rect x="60" y="120" width="680" height="14" rx="7" fill="url(#neon)" opacity="0.9"/>
+  <rect x="60" y="360" width="680" height="14" rx="7" fill="url(#neon)" opacity="0.6"/>
+  <rect x="120" y="160" width="560" height="180" rx="10" fill="#171f33" stroke="#4cd7f6" stroke-opacity="0.4"/>
+  <circle cx="640" cy="110" r="36" fill="#ffb0cd" opacity="0.8"/>
+  <text x="400" y="255" fill="#dae2fd" font-family="monospace" font-size="20" text-anchor="middle" opacity="0.7">TRANSIT // GHOST</text>
+</svg>
