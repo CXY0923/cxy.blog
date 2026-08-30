@@ -1,3 +1,8 @@
 @import 'tailwindcss';
 @import './tokens.css';
 @import './base.css';
+
+/* 计划/草稿文档含大量类名样文本,排除出 Tailwind 自动内容探测,防止未用工具类进入产物 */
+@source not '../../docs';
+@source not '../../.superpowers';
+@source not '../../原稿.txt';
