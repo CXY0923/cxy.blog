@@ -1,0 +1,37 @@
+---
+import { getAllPosts } from '../lib/content';
+import { formatDate } from '../lib/fmt';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BackToTop from '../components/ui/BackToTop.astro';
+
+const posts = await getAllPosts();
+const years = [...new Set(posts.map((p) => String(p.data.date.getFullYear())))];
+const byYear = years.map((y) => ({ year: y, posts: posts.filter((p) => String(p.data.date.getFullYear()) === y) }));
+const label: Record<string, string> = { notes: 'NOTES', docs: 'DOCS', essays: 'ESSAYS' };
+---
+
+<BaseLayout title="ARCHIVE · NEON_LOG" description="全站文章归档,按年份倒序。">
+  <header class="mb-10">
+    <h1 class="font-display text-3xl font-extrabold text-primary md:text-4xl">ARCHIVE</h1>
+    <p class="mt-3 text-on-surface-variant">共 {posts.length} 篇记录,按时间倒序排列。</p>
+  </header>
+  <div class="flex flex-col gap-10">
+    {
+      byYear.map(({ year, posts: items }) => (
+        <section>
+          <h2 class="mb-4 border-b border-secondary/30 pb-2 font-display text-2xl font-bold text-secondary">{year}</h2>
+          <ul class="flex flex-col gap-3">
+            {items.map((p) => (
+              <li class="flex flex-wrap items-baseline gap-3">
+                <span class="font-mono text-xs text-secondary/60">{formatDate(p.data.date)}</span>
+                <span class="rounded border border-outline-variant px-1.5 font-mono text-[10px] uppercase text-outline">{label[p.collection]}</span>
+                <a href={`/${p.collection}/${p.id}/`} class="text-on-surface hover:text-secondary">{p.data.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+  <BackToTop />
+</BaseLayout>

@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GlassCard from '../components/ui/GlassCard.astro';
+import TagChip from '../components/ui/TagChip.astro';
+
+const skills = ['TypeScript', 'Astro', 'React', 'Node.js', 'Rust', 'WebGPU'];
+const links = [
+  { href: 'https://github.com/cxy', label: 'GITHUB' },
+  { href: 'mailto:me@cxy.blog', label: 'EMAIL' },
+  { href: '#', label: 'RSS(占位)' },
+];
+---
+
+<BaseLayout title="ABOUT · NEON_LOG" description="关于 SYS_ADMIN_01。">
+  <div class="mx-auto max-w-3xl">
+    <div class="glass-panel corner-bracket rounded-lg p-8 text-center md:p-12">
+      <div class="glow-text mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full border-2 border-primary bg-surface-container font-display text-3xl font-bold text-primary">
+        C
+      </div>
+      <h1 class="font-display text-3xl font-extrabold text-on-surface">SYS_ADMIN_01</h1>
+      <p class="mt-1 font-mono text-xs uppercase tracking-widest text-primary">Lead Architect // 赛博架构师</p>
+      <p class="mt-6 leading-relaxed text-on-surface-variant">
+        我是 cxy,一名对系统底层与视觉表达同样着迷的工程师。这个站点是我的外存大脑:结构化的知识放在 Notes 与 Docs,逃出格子的想法落在 Essays。
+      </p>
+      <p class="mt-4 leading-relaxed text-on-surface-variant">相信松耦合的人生,和严格的接口。</p>
+    </div>
+
+    <GlassCard class="mt-8 p-8">
+      <h2 class="mb-4 font-mono text-sm font-bold uppercase tracking-widest text-secondary">SKILL_MATRIX</h2>
+      <div class="flex flex-wrap gap-2">{skills.map((s) => <TagChip tag={s} />)}</div>
+    </GlassCard>
+
+    <GlassCard class="mt-8 p-8">
+      <h2 class="mb-4 font-mono text-sm font-bold uppercase tracking-widest text-secondary">CONTACT_CHANNELS</h2>
+      <div class="flex flex-wrap gap-6 font-mono text-sm uppercase tracking-widest">
+        {
+          links.map((l) => (
+            <a href={l.href} class="text-on-surface-variant transition-colors hover:text-secondary">
+              {l.label}
+            </a>
+          ))
+        }
+      </div>
+    </GlassCard>
+  </div>
+</BaseLayout>

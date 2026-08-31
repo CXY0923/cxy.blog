@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="ERR_404 · NEON_LOG" description="页面未找到。">
+  <div class="glass-panel corner-bracket mx-auto max-w-2xl rounded-lg p-10 font-mono">
+    <p class="text-sm text-secondary">$ access <span class="text-tertiary">/this/path</span></p>
+    <p class="mt-4 text-2xl font-bold text-primary">ERR_404: NODE_NOT_FOUND</p>
+    <p class="mt-4 text-sm leading-relaxed text-on-surface-variant">
+      请求的节点不存在,或已在某次重构中被回收。数据流在此断开。
+    </p>
+    <div class="mt-8 flex gap-4">
+      <a href="/" class="rounded border border-secondary px-4 py-2 text-xs uppercase tracking-widest text-secondary transition-colors hover:bg-secondary/10">RETURN_HOME</a>
+      <a href="/archive/" class="rounded border border-outline px-4 py-2 text-xs uppercase tracking-widest text-on-surface-variant transition-colors hover:border-secondary hover:text-secondary">BROWSE_ARCHIVE</a>
+    </div>
+  </div>
+</BaseLayout>
