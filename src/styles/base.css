@@ -134,12 +134,14 @@ body {
 [data-theme='dark'] .astro-code span { color: var(--shiki-dark); }
 
 /* ===== View Transitions(规格 §4):主题圆形扩散 + 页面导航过渡 ===== */
-::view-transition-old(root),
-::view-transition-new(root) {
+::view-transition-old(root) {
   animation: none;
   mix-blend-mode: normal;
 }
-/* 页面导航:新页淡入 + 上移 240ms(主题切换时 JS 的 WAAPI clip-path 优先级更高,自动覆盖) */
+/* 页面导航:新页淡入 + 上移 240ms。
+   主题切换时不会叠加本动画:JS 的 WAAPI(TopNav)在 ::view-transition-new(root) 上
+   同时动画 clip-path / opacity / transform 三个属性,WAAPI 在这三个属性上的优先级
+   都高于此处的 CSS 动画,nl-page-in 的淡入上移无法渗透到圆形扩散层。 */
 ::view-transition-new(root) {
   animation: nl-page-in 240ms ease-out;
 }

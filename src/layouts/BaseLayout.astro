@@ -42,30 +42,27 @@ const {
           const meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1326' : '#f8f9fe');
         };
-        const stored = (() => {
+        const stored = () => {
           try {
             return localStorage.getItem('theme');
           } catch {
             return null;
           }
-        })();
-        const prefersDark = window.matchMedia
-          ? window.matchMedia('(prefers-color-scheme: dark)').matches
-          : true;
-        apply(stored === 'light' || stored === 'dark' ? stored : prefersDark ? 'dark' : 'light');
+        };
+        const prefersDark = () =>
+          window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : true;
+        /* 完整解析:存储值 → 否则跟随系统(首屏与换页共用同一套) */
+        const resolve = () => {
+          const s = stored();
+          if (s === 'light' || s === 'dark') return s;
+          return prefersDark() ? 'dark' : 'light';
+        };
+        apply(resolve());
         /* 主题按钮 → 唯一 class 切换入口 */
         window.addEventListener('nl:theme', (e) => apply(e.detail));
-        /* ClientRouter 换页后 html 被替换,重新应用持久化主题(规格 §4.3) */
-        document.addEventListener('astro:after-swap', () => {
-          const s = (() => {
-            try {
-              return localStorage.getItem('theme');
-            } catch {
-              return null;
-            }
-          })();
-          if (s === 'light' || s === 'dark') apply(s);
-        });
+        /* ClientRouter 换页后 html 被替换为服务端默认 dark,必须重跑完整解析
+           (只回放存储值会把从未手动切换过的系统浅色用户翻回暗色) */
+        document.addEventListener('astro:after-swap', () => apply(resolve()));
       })();
     </script>
   </head>

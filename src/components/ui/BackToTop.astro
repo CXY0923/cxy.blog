@@ -43,6 +43,11 @@ import { Icon } from 'astro-icon/components';
 
   document.addEventListener('click', (e) => {
     if (!(e.target as HTMLElement).closest('[data-back-to-top]')) return;
+    /* 减动效:跳过 680ms 动画,直接置顶(规格 §4.4) */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.scrollTo(0, 0);
+      return;
+    }
     animateScrollTo(0);
   });
   window.addEventListener('scroll', sync, { passive: true });

@@ -12,16 +12,18 @@ const isActive = (href: string) => (href === '/' ? current === '/' : current.sta
 ---
 
 <nav
+  data-topnav
   class="fixed inset-x-0 top-0 z-50 border-b border-primary/20 bg-surface/80 backdrop-blur-md"
   transition:persist="topnav"
 >
   <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-16">
     <a href="/" class="glow-text font-display text-xl font-bold tracking-tight text-primary">NEON_LOG</a>
-    <div class="hidden items-center gap-8 md:flex">
+    <div data-desktop-links class="hidden items-center gap-8 md:flex">
       {
         links.map((l) => (
           <a
             href={l.href}
+            data-nav-link
             aria-current={isActive(l.href) ? 'page' : undefined}
             class:list={[
               'font-mono text-sm uppercase tracking-wider transition-colors',
@@ -48,6 +50,7 @@ const isActive = (href: string) => (href === '/' ? current === '/' : current.sta
         type="button"
         data-menu-toggle
         aria-label="菜单"
+        aria-expanded="false"
         class="rounded-full p-2 text-secondary transition-colors hover:bg-secondary/10 md:hidden"
       >
         <Icon name="material-symbols:menu" class="text-xl" />
@@ -57,7 +60,7 @@ const isActive = (href: string) => (href === '/' ? current === '/' : current.sta
   <div data-mobile-menu hidden class="border-t border-outline-variant/40 bg-surface/95 px-4 py-3 md:hidden">
     {
       links.map((l) => (
-        <a href={l.href} class="block py-2 font-mono text-sm uppercase tracking-wider text-on-surface-variant hover:text-secondary">
+        <a href={l.href} data-nav-link class="block py-2 font-mono text-sm uppercase tracking-wider text-on-surface-variant hover:text-secondary">
           {l.label}
         </a>
       ))
@@ -101,6 +104,9 @@ const isActive = (href: string) => (href === '/' ? current === '/' : current.sta
           document.documentElement.animate(
             {
               clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`],
+              /* 钉住 nl-page-in 也在动的 opacity/transform:WAAPI 在这三个属性上都压过 CSS 动画,页面淡入上移无法渗透到扩散层 */
+              opacity: [1, 1],
+              transform: ['none', 'none'],
             },
             {
               duration: 520,
@@ -118,7 +124,43 @@ const isActive = (href: string) => (href === '/' ? current === '/' : current.sta
     const menuBtn = target.closest<HTMLElement>('[data-menu-toggle]');
     if (menuBtn) {
       const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
-      if (menu) menu.hidden = !menu.hidden;
+      if (menu) {
+        menu.hidden = !menu.hidden;
+        menuBtn.setAttribute('aria-expanded', String(!menu.hidden));
+      }
+      return;
+    }
+
+    // —— 点击移动菜单内链接 → 立即收起(不等换页;aria-expanded 同步归位)——
+    const menuLink = target.closest<HTMLElement>('[data-mobile-menu] a');
+    if (menuLink) {
+      const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+      const btn = document.querySelector<HTMLElement>('[data-menu-toggle]');
+      if (menu) menu.hidden = true;
+      btn?.setAttribute('aria-expanded', 'false');
     }
   });
+
+  /* ===== 导航高亮随 ClientRouter 换页同步:nav transition:persist,服务端渲染的 active 态会一直停留在首屏页 ===== */
+  const syncActive = () => {
+    const path = location.pathname;
+    const nav = document.querySelector<HTMLElement>('[data-topnav]');
+    if (!nav) return;
+    /* 只扫两排导航链接(data-nav-link),品牌链接不在其中,天然豁免下划线态 */
+    nav.querySelectorAll<HTMLAnchorElement>('[data-nav-link]').forEach((a) => {
+      const href = a.getAttribute('href') ?? '/';
+      const active = href === '/' ? path === '/' : path.startsWith(href);
+      const desktop = !!a.closest('[data-desktop-links]');
+      a.classList.toggle('border-b-2', active && desktop);
+      a.classList.toggle('border-secondary', active && desktop);
+      a.classList.toggle('pb-0.5', active && desktop);
+      a.classList.toggle('font-bold', active);
+      a.classList.toggle('text-secondary', active);
+      a.classList.toggle('text-on-surface-variant', !active);
+      if (active) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  };
+  document.addEventListener('astro:page-load', syncActive);
+  syncActive();
 </script>
