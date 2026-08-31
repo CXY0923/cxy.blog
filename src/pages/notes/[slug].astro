@@ -1,0 +1,32 @@
+---
+import { getPublished } from '../../lib/content';
+import { byDateDesc, adjacent } from '../../lib/post-utils';
+import { formatDate, readingTime } from '../../lib/fmt';
+import PostLayout from '../../layouts/PostLayout.astro';
+import { render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const notes = byDateDesc(await getPublished('notes'));
+  return notes.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const notes = byDateDesc(await getPublished('notes'));
+const { newer, older } = adjacent(notes, (n) => n.id === post.id);
+const { Content } = await render(post);
+---
+
+<PostLayout
+  backHref="/notes/"
+  backLabel="LEARNING_MATRIX"
+  title={post.data.title}
+  date={formatDate(post.data.date)}
+  minutes={readingTime(post.body ?? '')}
+  tags={post.data.tags}
+>
+  <Content />
+  <nav slot="footer-nav" class="mt-16 flex justify-between gap-4 border-t border-outline-variant/40 pt-6 font-mono text-xs uppercase tracking-widest">
+    {newer ? <a href={`/notes/${newer.id}/`} class="text-secondary hover:text-primary">← {newer.data.title}</a> : <span />}
+    {older ? <a href={`/notes/${older.id}/`} class="text-secondary hover:text-primary">{older.data.title} →</a> : <span />}
+  </nav>
+</PostLayout>

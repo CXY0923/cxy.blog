@@ -1,0 +1,72 @@
+---
+import { getPublished } from '../../lib/content';
+import { byDateDesc } from '../../lib/post-utils';
+import { formatDate } from '../../lib/fmt';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/ui/PostCard.astro';
+import BackToTop from '../../components/ui/BackToTop.astro';
+
+const notes = byDateDesc(await getPublished('notes'));
+const categories = [...new Set(notes.flatMap((n) => n.data.tags))];
+---
+
+<BaseLayout title="LEARNING_MATRIX · NEON_LOG" description="学习笔记知识索引。">
+  <header class="mb-10">
+    <h1 class="font-display text-3xl font-extrabold text-primary md:text-4xl">LEARNING_MATRIX</h1>
+    <p class="mt-3 max-w-2xl text-on-surface-variant">访问碎片化知识节点。选择一个分类,开始数据传输。</p>
+    <div class="mt-2 text-right font-mono text-xs uppercase tracking-widest text-secondary/40">SYS_STATUS: ONLINE</div>
+  </header>
+
+  <div class="mb-8 flex flex-wrap gap-3" data-filter-bar>
+    <button type="button" data-filter="all" class="filter-active border border-secondary bg-secondary/20 px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-secondary transition-colors">
+      ALL_NODES
+    </button>
+    {
+      categories.map((c) => (
+        <button
+          type="button"
+          data-filter={c}
+          class="border border-outline bg-transparent px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-on-surface-variant transition-colors hover:border-secondary hover:text-secondary"
+        >
+          {c}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+    {
+      notes.map((n) => (
+        <PostCard
+          title={n.data.title}
+          href={`/notes/${n.id}/`}
+          description={n.data.description}
+          date={formatDate(n.data.date)}
+          tags={n.data.tags}
+        />
+      ))
+    }
+  </div>
+  <BackToTop />
+</BaseLayout>
+
+<script>
+  /* 客户端筛选(规格 §5):data-filter ↔ PostCard 的 data-tags,document 委托 */
+  const activeCls = ['border-secondary', 'bg-secondary/20', 'text-secondary'];
+  const idleCls = ['border-outline', 'text-on-surface-variant'];
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-filter]');
+    if (!btn) return;
+    const value = btn.dataset.filter ?? 'all';
+    document.querySelectorAll<HTMLElement>('[data-filter]').forEach((b) => {
+      b.classList.remove(...activeCls);
+      b.classList.add(...idleCls);
+    });
+    btn.classList.remove(...idleCls);
+    btn.classList.add(...activeCls);
+    document.querySelectorAll<HTMLElement>('[data-note-card]').forEach((card) => {
+      const tags = (card.dataset.tags ?? '').split(',');
+      card.hidden = value !== 'all' && !tags.includes(value);
+    });
+  });
+</script>
