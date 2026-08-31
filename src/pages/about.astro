@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GlassCard from '../components/ui/GlassCard.astro';
-import TagChip from '../components/ui/TagChip.astro';
 
 const skills = ['TypeScript', 'Astro', 'React', 'Node.js', 'Rust', 'WebGPU'];
 const links = [
@@ -27,7 +26,15 @@ const links = [
 
     <GlassCard class="mt-8 p-8">
       <h2 class="mb-4 font-mono text-sm font-bold uppercase tracking-widest text-secondary">SKILL_MATRIX</h2>
-      <div class="flex flex-wrap gap-2">{skills.map((s) => <TagChip tag={s} />)}</div>
+      <div class="flex flex-wrap gap-2">
+        {
+          skills.map((s) => (
+            <span class="inline-flex items-center rounded-full border border-secondary/30 bg-surface-container px-3 py-1 font-mono text-xs text-secondary">
+              {s}
+            </span>
+          ))
+        }
+      </div>
     </GlassCard>
 
     <GlassCard class="mt-8 p-8">
