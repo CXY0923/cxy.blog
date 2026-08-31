@@ -1,0 +1,62 @@
+---
+import { getPublished } from '../../lib/content';
+import { byDateDesc } from '../../lib/post-utils';
+import { formatDate } from '../../lib/fmt';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BackToTop from '../../components/ui/BackToTop.astro';
+
+const essays = byDateDesc(await getPublished('essays'));
+---
+
+<BaseLayout title="Fragments & Reflections · NEON_LOG" description="随笔:逃出刚性系统的散落思考。">
+  <header class="mb-16 text-center">
+    <h1 class="glow-text font-display text-3xl font-extrabold text-tertiary md:text-4xl">Fragments &amp; Reflections</h1>
+    <p class="mx-auto mt-3 max-w-2xl text-on-surface-variant">散落的思考、个人随笔与瞬间,逃离系统的刚性结构。</p>
+  </header>
+
+  <div class="relative">
+    <div
+      class="absolute bottom-0 left-2 top-0 w-0.5 bg-gradient-to-b from-tertiary/80 to-primary/20 shadow-[0_0_8px_rgba(255,176,205,0.4)] md:left-1/2"
+      aria-hidden="true"
+    >
+    </div>
+    <div class="flex flex-col gap-16">
+      {
+        essays.map((essay, i) => (
+          <article class:list={['relative md:w-[46%]', i % 2 === 0 ? 'md:self-start' : 'md:self-end', 'pl-8 md:pl-0']}>
+            <span
+              class:list={[
+                'absolute left-0 top-6 h-4 w-4 rounded-full border-2 border-surface bg-tertiary shadow-[0_0_12px_rgba(255,176,205,0.8)] md:left-auto',
+                i % 2 === 0 ? 'md:right-[-9px]' : 'md:left-[-9px]',
+              ]}
+              aria-hidden="true"
+            />
+            {essay.data.image ? (
+              <img src={essay.data.image} alt={essay.data.title} width="800" height="500" loading="lazy" class="mb-4 w-full rounded-lg border border-tertiary/30 object-cover opacity-80 transition-opacity hover:opacity-100" />
+            ) : null}
+            <div class="glass-panel corner-bracket rounded-lg p-6 transition-all duration-300 hover:-translate-y-1">
+              <div class="mb-2 font-mono text-xs text-tertiary opacity-70">{formatDate(essay.data.date)} // SYS_LOG</div>
+              <h2 class="mb-3 font-display text-xl font-bold text-primary">
+                <a href={`/essays/${essay.id}/`} class="hover:text-tertiary">{essay.data.title}</a>
+              </h2>
+              <p class="line-clamp-3 leading-relaxed text-on-surface-variant">{essay.data.description}</p>
+              <a href={`/essays/${essay.id}/`} class="mt-4 inline-block font-mono text-xs uppercase tracking-widest text-tertiary hover:text-primary">
+                READ_FULL_LOG →
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="mt-16 text-center">
+    <a
+      href="/archive/"
+      class="inline-block rounded border border-tertiary px-6 py-3 font-mono text-xs uppercase tracking-widest text-tertiary transition-colors hover:bg-tertiary/10"
+    >
+      LOAD_ARCHIVE
+    </a>
+  </div>
+  <BackToTop />
+</BaseLayout>

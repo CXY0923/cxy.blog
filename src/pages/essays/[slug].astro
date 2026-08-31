@@ -1,0 +1,37 @@
+---
+import { getPublished } from '../../lib/content';
+import { byDateDesc, adjacent } from '../../lib/post-utils';
+import { formatDate, readingTime } from '../../lib/fmt';
+import PostLayout from '../../layouts/PostLayout.astro';
+import { render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const essays = byDateDesc(await getPublished('essays'));
+  return essays.map((essay) => ({ params: { slug: essay.id }, props: { essay } }));
+}
+
+const { essay } = Astro.props;
+const essays = byDateDesc(await getPublished('essays'));
+const { newer, older } = adjacent(essays, (e) => e.id === essay.id);
+const { Content } = await render(essay);
+---
+
+<PostLayout
+  backHref="/essays/"
+  backLabel="FRAGMENTS"
+  title={essay.data.title}
+  date={formatDate(essay.data.date)}
+  minutes={readingTime(essay.body ?? '')}
+  tags={essay.data.tags}
+>
+  {
+    essay.data.image && (
+      <img src={essay.data.image} alt={essay.data.title} width="800" height="500" class="mb-8 w-full rounded-lg border border-tertiary/30" />
+    )
+  }
+  <Content />
+  <nav slot="footer-nav" class="mt-16 flex justify-between gap-4 border-t border-outline-variant/40 pt-6 font-mono text-xs uppercase tracking-widest">
+    {newer ? <a href={`/essays/${newer.id}/`} class="text-secondary hover:text-primary">← {newer.data.title}</a> : <span />}
+    {older ? <a href={`/essays/${older.id}/`} class="text-secondary hover:text-primary">{older.data.title} →</a> : <span />}
+  </nav>
+</PostLayout>
