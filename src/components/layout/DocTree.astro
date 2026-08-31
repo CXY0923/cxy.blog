@@ -1,0 +1,47 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface DocItem {
+  id: string;
+  title: string;
+}
+interface Props {
+  tree: Array<{ category: string; items: DocItem[] }>;
+  currentId: string;
+}
+const { tree, currentId } = Astro.props;
+---
+
+<aside class="hidden lg:block">
+  <div class="glass-panel sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-lg p-5">
+    <h4 class="mb-4 font-mono text-xs font-bold uppercase tracking-widest text-secondary">DOC_NAV</h4>
+    <nav class="flex flex-col gap-5">
+      {
+        tree.map((group) => (
+          <div>
+            <div class="mb-2 font-mono text-xs uppercase tracking-widest text-tertiary opacity-80">{group.category}</div>
+            <ul class="flex flex-col gap-1">
+              {group.items.map((doc) => (
+                <li>
+                  <a
+                    href={`/docs/${doc.id}/`}
+                    aria-current={doc.id === currentId ? 'page' : undefined}
+                    class:list={[
+                      'flex items-center gap-2 rounded px-2 py-1.5 font-mono text-sm transition-colors',
+                      doc.id === currentId
+                        ? 'border-r-2 border-secondary bg-secondary/10 font-bold text-secondary'
+                        : 'text-on-surface-variant hover:bg-surface-container hover:text-secondary',
+                    ]}
+                  >
+                    <Icon name="material-symbols:description" class="text-base opacity-70" />
+                    {doc.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </nav>
+  </div>
+</aside>

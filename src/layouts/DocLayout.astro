@@ -1,0 +1,51 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import DocTree from '../components/layout/DocTree.astro';
+import Toc from '../components/layout/Toc.astro';
+import TagChip from '../components/ui/TagChip.astro';
+import BackToTop from '../components/ui/BackToTop.astro';
+
+export interface DocTreeGroup {
+  category: string;
+  items: Array<{ id: string; title: string }>;
+}
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+interface Props {
+  tree: DocTreeGroup[];
+  headings: Heading[];
+  currentId: string;
+  title: string;
+  date: string;
+  minutes: number;
+  tags: string[];
+}
+const { tree, headings, currentId, title, date, minutes, tags } = Astro.props;
+---
+
+<BaseLayout title={`${title} · NEON_LOG`}>
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)_16rem]">
+    <DocTree tree={tree} currentId={currentId} />
+    <article class="mx-auto w-full max-w-3xl">
+      <a href="/docs/" class="font-mono text-xs uppercase tracking-widest text-secondary hover:text-primary">← TECH_SPECS</a>
+      <header class="mb-10 mt-4">
+        <h1 class="font-display text-3xl font-extrabold text-on-surface md:text-4xl">{title}</h1>
+        <div class="mt-4 flex flex-wrap items-center gap-3 font-mono text-xs">
+          <span class="text-secondary">{date}</span>
+          <span class="text-outline">·</span>
+          <span class="uppercase text-on-surface-variant">~{minutes} MIN</span>
+          {tags.map((t) => <TagChip tag={t} />)}
+        </div>
+      </header>
+      <div class="article-body">
+        <slot />
+      </div>
+      <slot name="footer-nav" />
+    </article>
+    <Toc headings={headings} />
+  </div>
+  <BackToTop />
+</BaseLayout>

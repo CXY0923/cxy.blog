@@ -1,0 +1,66 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+interface Props {
+  headings: Heading[];
+}
+const { headings } = Astro.props;
+const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  items.length > 0 && (
+    <aside class="hidden xl:block">
+      <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pl-4">
+        <h4 class="mb-4 font-mono text-xs font-bold uppercase tracking-widest text-secondary">ON_THIS_PAGE</h4>
+        <ul class="flex flex-col gap-2 border-l border-outline-variant" data-toc>
+          {items.map((h) => (
+            <li>
+              <a
+                href={`#${h.slug}`}
+                data-toc-link={h.slug}
+                class:list={[
+                  '-ml-px block border-l-2 border-transparent pl-3 font-mono text-xs leading-relaxed text-on-surface-variant transition-colors hover:text-on-surface',
+                  h.depth === 3 ? 'pl-6' : '',
+                ]}
+              >
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+  )
+}
+
+<script>
+  /* TOC scrollspy(规格 §7):IntersectionObserver 高亮当前小节,astro:page-load 重挂 */
+  const setup = () => {
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+    if (links.length === 0) return;
+    const targets = links
+      .map((l) => document.getElementById(l.dataset.tocLink ?? ''))
+      .filter((el): el is HTMLElement => el !== null);
+    const setActive = (id: string) => {
+      links.forEach((l) => {
+        const on = l.dataset.tocLink === id;
+        l.classList.toggle('border-secondary', on);
+        l.classList.toggle('text-secondary', on);
+      });
+    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: '-80px 0px -70% 0px' },
+    );
+    targets.forEach((t) => observer.observe(t));
+  };
+  setup();
+  document.addEventListener('astro:page-load', setup);
+</script>

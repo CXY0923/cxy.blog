@@ -1,0 +1,39 @@
+---
+import { getPublished } from '../../lib/content';
+import { byDateDesc, adjacent } from '../../lib/post-utils';
+import { formatDate, readingTime } from '../../lib/fmt';
+import DocLayout from '../../layouts/DocLayout.astro';
+import { render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const docs = byDateDesc(await getPublished('docs'));
+  return docs.map((doc) => ({ params: { slug: doc.id }, props: { doc } }));
+}
+
+const { doc } = Astro.props;
+const docs = byDateDesc(await getPublished('docs'));
+const categories = [...new Set(docs.map((d) => d.data.category))];
+/* 内联结构类型:与 DocTree.astro / DocLayout.astro 的 Props 结构一致;不从 .astro 文件导入类型 */
+const tree: { category: string; items: Array<{ id: string; title: string }> }[] = categories.map((category) => ({
+  category,
+  items: docs.filter((d) => d.data.category === category).map((d) => ({ id: d.id, title: d.data.title })),
+}));
+const { newer, older } = adjacent(docs, (d) => d.id === doc.id);
+const { Content, headings } = await render(doc);
+---
+
+<DocLayout
+  tree={tree}
+  headings={headings}
+  currentId={doc.id}
+  title={doc.data.title}
+  date={formatDate(doc.data.date)}
+  minutes={readingTime(doc.body ?? '')}
+  tags={doc.data.tags}
+>
+  <Content />
+  <nav slot="footer-nav" class="mt-16 flex justify-between gap-4 border-t border-outline-variant/40 pt-6 font-mono text-xs uppercase tracking-widest">
+    {newer ? <a href={`/docs/${newer.id}/`} class="text-secondary hover:text-primary">← {newer.data.title}</a> : <span />}
+    {older ? <a href={`/docs/${older.id}/`} class="text-secondary hover:text-primary">{older.data.title} →</a> : <span />}
+  </nav>
+</DocLayout>
