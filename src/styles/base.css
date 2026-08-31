@@ -144,6 +144,8 @@ body {
    都高于此处的 CSS 动画,nl-page-in 的淡入上移无法渗透到圆形扩散层。 */
 ::view-transition-new(root) {
   animation: nl-page-in 240ms ease-out;
+  /* 覆盖 UA 默认的 plus-lighter,防止 240ms 淡入期间新旧快照叠加发亮 */
+  mix-blend-mode: normal;
 }
 @keyframes nl-page-in {
   from { opacity: 0; transform: translateY(12px); }

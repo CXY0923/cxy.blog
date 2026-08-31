@@ -131,13 +131,15 @@ const isActive = (href: string) => (href === '/' ? current === '/' : current.sta
       return;
     }
 
-    // —— 点击移动菜单内链接 → 立即收起(不等换页;aria-expanded 同步归位)——
-    const menuLink = target.closest<HTMLElement>('[data-mobile-menu] a');
+    // —— 点击移动菜单内链接或任意导航链接 → 立即收起(不等换页;aria-expanded 同步归位)——
+    const menuLink = target.closest<HTMLElement>('[data-mobile-menu] a, [data-topnav] a');
     if (menuLink) {
       const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
       const btn = document.querySelector<HTMLElement>('[data-menu-toggle]');
-      if (menu) menu.hidden = true;
-      btn?.setAttribute('aria-expanded', 'false');
+      if (menu && !menu.hidden) {
+        menu.hidden = true;
+        btn?.setAttribute('aria-expanded', 'false');
+      }
     }
   });
 
