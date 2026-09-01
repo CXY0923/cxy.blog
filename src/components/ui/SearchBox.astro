@@ -1,0 +1,186 @@
+---
+import { searchPosts, type SearchIndexEntry } from '../../lib/search';
+
+// 静态站搜索:构建期 /search-index.json + 客户端子串评分(规格 docs/superpowers/specs/2026-09-01-search-design.md)
+---
+<div class="relative" data-search-box>
+  <input
+    type="text"
+    placeholder="Search logs..."
+    autocomplete="off"
+    spellcheck="false"
+    role="combobox"
+    aria-expanded="false"
+    aria-controls="search-results"
+    aria-autocomplete="list"
+    aria-label="搜索全站文章"
+    data-search-input
+    class="w-full border-b border-secondary/30 bg-transparent px-2 py-2 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-secondary focus:outline-none"
+  />
+  <div
+    data-search-panel
+    hidden
+    class="absolute inset-x-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-lg border border-outline-variant/60 bg-surface-low/95 p-2 shadow-lg backdrop-blur-md"
+  >
+    <ul id="search-results" role="listbox" data-search-list class="hidden"></ul>
+    <p data-search-status class="px-2 py-3 font-mono text-xs tracking-widest text-outline"></p>
+  </div>
+</div>
+
+<script>
+  import { searchPosts, type SearchIndexEntry } from '../../lib/search';
+
+  const box = document.querySelector<HTMLElement>('[data-search-box]')!;
+  const input = box.querySelector<HTMLInputElement>('[data-search-input]')!;
+  const panel = box.querySelector<HTMLElement>('[data-search-panel]')!;
+  const list = box.querySelector<HTMLUListElement>('[data-search-list]')!;
+  const status = box.querySelector<HTMLElement>('[data-search-status]')!;
+
+  let hits: SearchIndexEntry[] = [];
+  let active = -1;
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  // 懒加载 + 模块级缓存;失败置回 null,下次聚焦重试
+  let indexPromise: Promise<SearchIndexEntry[]> | null = null;
+  function loadIndex(): Promise<SearchIndexEntry[]> {
+    indexPromise ??= fetch('/search-index.json').then((res) => {
+      if (!res.ok) throw new Error(`index ${res.status}`);
+      return res.json() as Promise<SearchIndexEntry[]>;
+    });
+    return indexPromise;
+  }
+
+  function open() {
+    panel.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+  }
+  function close() {
+    panel.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+    active = -1;
+  }
+
+  function setStatus(text: string) {
+    status.textContent = text;
+    status.classList.toggle('hidden', !text);
+    list.classList.toggle('hidden', text !== '');
+  }
+
+  /** 标题命中片段高亮;DOM API 构建,文本一律走 textContent 防注入 */
+  function titleNode(entry: SearchIndexEntry, q: string): DocumentFragment {
+    const frag = document.createDocumentFragment();
+    const i = entry.title.toLowerCase().indexOf(q);
+    if (i < 0) {
+      frag.append(entry.title);
+      return frag;
+    }
+    frag.append(entry.title.slice(0, i));
+    const mark = document.createElement('mark');
+    mark.className = 'rounded-sm bg-primary/15 px-0.5 font-bold text-primary';
+    mark.textContent = entry.title.slice(i, i + q.length);
+    frag.append(mark, entry.title.slice(i + q.length));
+    return frag;
+  }
+
+  function renderHits(entries: SearchIndexEntry[], q: string) {
+    list.textContent = '';
+    hits = entries;
+    active = -1;
+    if (entries.length === 0) {
+      setStatus('NO_MATCH_FOUND');
+      open();
+      return;
+    }
+    setStatus('');
+    entries.forEach((entry, i) => {
+      const li = document.createElement('li');
+      li.id = `search-hit-${i}`;
+      li.setAttribute('role', 'option');
+      li.setAttribute('aria-selected', 'false');
+      const a = document.createElement('a');
+      a.href = entry.url;
+      a.className =
+        'block rounded px-2 py-2 transition-colors hover:bg-surface-container/60 aria-selected:bg-surface-container/60';
+      a.addEventListener('click', () => close());
+
+      const row = document.createElement('div');
+      row.className = 'flex items-baseline justify-between gap-3';
+      const title = document.createElement('span');
+      title.className = 'text-sm font-bold leading-snug text-on-surface';
+      title.append(titleNode(entry, q));
+      const date = document.createElement('span');
+      date.className = 'ml-auto shrink-0 font-mono text-[10px] text-secondary/80';
+      date.textContent = entry.date;
+      row.append(title, date);
+
+      const tag = document.createElement('div');
+      tag.className = 'mt-0.5 font-mono text-[10px] uppercase tracking-widest text-secondary/60';
+      tag.textContent = entry.collection;
+
+      a.append(row, tag);
+      li.append(a);
+      list.append(li);
+    });
+    open();
+  }
+
+  function setActive(next: number) {
+    if (hits.length === 0) return;
+    active = (next + hits.length) % hits.length;
+    list.querySelectorAll('[role="option"]').forEach((li, i) => {
+      li.setAttribute('aria-selected', String(i === active));
+    });
+    const el = list.children[active] as HTMLElement;
+    input.setAttribute('aria-activedescendant', el.id);
+    el.scrollIntoView({ block: 'nearest' });
+  }
+
+  function run(query: string) {
+    const q = query.trim();
+    if (q === '') {
+      hits = [];
+      close();
+      return;
+    }
+    setStatus('LOADING_INDEX...');
+    open();
+    loadIndex()
+      .then((index) => renderHits(searchPosts(index, q), q.toLowerCase()))
+      .catch(() => {
+        indexPromise = null; // 下次聚焦重试
+        hits = [];
+        setStatus('INDEX_OFFLINE // RETRY');
+        open();
+      });
+  }
+
+  input.addEventListener('focus', () => {
+    if (input.value.trim() !== '') run(input.value);
+  });
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => run(input.value), 120);
+  });
+  input.addEventListener('keydown', (e) => {
+    if (panel.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      run(input.value);
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(active + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(active - 1);
+    } else if (e.key === 'Enter' && active >= 0 && hits[active]) {
+      e.preventDefault();
+      window.location.assign(hits[active].url);
+    } else if (e.key === 'Escape') {
+      close();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!box.contains(e.target as Node)) close();
+  });
+</script>
