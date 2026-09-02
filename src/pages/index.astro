@@ -25,17 +25,26 @@ const tags = tagCounts(posts.map((p) => p.data.tags)).slice(0, 8);
         <div class="mt-8 flex items-center gap-4">
           <a
             href="/about/"
-            class="glow-text flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-surface-container font-display text-2xl font-bold text-primary transition-transform hover:scale-105"
+            class="shrink-0 transition-transform hover:scale-105"
             aria-label="关于我"
           >
-            C
+            <img
+              src="/avatar.svg"
+              alt="cxyblog 头像"
+              width="64"
+              height="64"
+              class="h-16 w-16 rounded-full border-2 border-primary object-cover"
+            />
           </a>
           <div>
-            <h2 class="font-display text-base font-bold text-on-surface">SYS_ADMIN_01</h2>
-            <p class="mt-0.5 font-mono text-xs uppercase tracking-widest text-primary">Lead Architect</p>
+            <h2 class="font-display text-base font-bold text-on-surface">cxyblog</h2>
+            <p class="mt-0.5 font-mono text-xs uppercase tracking-widest text-primary">full-stack developer</p>
           </div>
         </div>
         <p class="mt-4 text-sm leading-relaxed text-on-surface-variant">构建数字现实,记录模拟世界的崩溃过程。</p>
+        <blockquote class="mt-3 border-l-2 border-primary/40 pl-3 text-sm italic leading-relaxed text-on-surface-variant">
+          沉舟侧畔千帆过,病树前头万木春。
+        </blockquote>
         <a href="/about/" class="mt-4 inline-block font-mono text-xs uppercase tracking-widest text-secondary hover:text-primary">MORE_INFO →</a>
       </section>
     </aside>
