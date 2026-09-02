@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import ArticleEnhance from '../components/layout/ArticleEnhance.astro';
 import BackToTop from '../components/ui/BackToTop.astro';
 import TagChip from '../components/ui/TagChip.astro';
 
@@ -15,7 +16,7 @@ const { backHref, backLabel, title, date, minutes, tags } = Astro.props;
 ---
 
 <BaseLayout title={`${title} · NEON_LOG`}>
-  <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+  <ArticleEnhance />
   <article class="mx-auto max-w-3xl">
     <a href={backHref} class="font-mono text-xs uppercase tracking-widest text-secondary hover:text-primary">← {backLabel}</a>
     <header class="mb-10 mt-4">
@@ -34,60 +35,3 @@ const { backHref, backLabel, title, date, minutes, tags } = Astro.props;
   </article>
   <BackToTop />
 </BaseLayout>
-
-<script>
-  /* ===== 阅读进度条(规格 §7):fixed 细条,passive scroll ===== */
-  let bar: HTMLElement | null = null;
-  let doc: HTMLElement | null = null;
-  const update = () => {
-    if (!bar || !doc) return;
-    const total = doc.scrollHeight - window.innerHeight;
-    const pct = total > 0 ? Math.min(100, (window.scrollY / total) * 100) : 0;
-    bar.style.width = `${pct}%`;
-  };
-  const refresh = () => {
-    bar = document.querySelector('[data-reading-progress]');
-    doc = document.documentElement;
-  };
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update, { passive: true });
-  document.addEventListener('astro:page-load', () => {
-    refresh();
-    update();
-  });
-
-  /* ===== 代码块增强(规格 §7):头部栏(语言)+ 复制按钮,幂等 ===== */
-  const enhance = () => {
-    document.querySelectorAll<HTMLElement>('article .article-body > .astro-code, article .article-body .astro-code').forEach((pre) => {
-      if (pre.dataset.enhanced) return;
-      pre.dataset.enhanced = '1';
-      const lang = pre.dataset.language ?? 'code';
-      const wrap = document.createElement('div');
-      wrap.className = 'codeblock';
-      const header = document.createElement('div');
-      header.className = 'codeblock-header';
-      const label = document.createElement('span');
-      label.textContent = lang.toUpperCase();
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'codeblock-copy';
-      btn.setAttribute('aria-label', '复制代码');
-      btn.textContent = 'COPY';
-      btn.addEventListener('click', async () => {
-        const code = pre.querySelector('pre')?.textContent ?? pre.textContent ?? '';
-        try {
-          await navigator.clipboard.writeText(code);
-          btn.textContent = '✓ COPIED';
-        } catch {
-          btn.textContent = '✗ FAILED';
-        }
-        window.setTimeout(() => (btn.textContent = 'COPY'), 2000);
-      });
-      header.append(label, btn);
-      pre.replaceWith(wrap);
-      wrap.append(header, pre);
-    });
-  };
-  enhance();
-  document.addEventListener('astro:page-load', enhance);
-</script>

@@ -38,7 +38,8 @@ import { Icon } from 'astro-icon/components';
   const sync = () => {
     const btn = document.querySelector<HTMLElement>('[data-back-to-top]');
     if (!btn) return;
-    btn.hidden = window.scrollY <= window.innerHeight;
+    /* 滚过 0.4 屏即出现:阈值取整屏时,中短页面(如随笔列表)永远够不到 */
+    btn.hidden = window.scrollY <= window.innerHeight * 0.4;
   };
 
   document.addEventListener('click', (e) => {

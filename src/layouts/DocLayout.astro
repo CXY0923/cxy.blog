@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import ArticleEnhance from '../components/layout/ArticleEnhance.astro';
 import DocTree from '../components/layout/DocTree.astro';
 import Toc from '../components/layout/Toc.astro';
 import TagChip from '../components/ui/TagChip.astro';
@@ -27,6 +28,7 @@ const { tree, headings, currentId, title, date, minutes, tags } = Astro.props;
 ---
 
 <BaseLayout title={`${title} · NEON_LOG`}>
+  <ArticleEnhance />
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)_16rem]">
     <DocTree tree={tree} currentId={currentId} />
     <article class="mx-auto w-full max-w-3xl">

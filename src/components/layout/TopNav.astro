@@ -90,9 +90,10 @@ const isActive = (href: string) => (href === '/' ? current === '/' : current.sta
         }
       };
       const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      /* 点击瞬间先写存储:动画结束后才写的话,切换后半秒内刷新/关页会丢选择 */
+      persist();
       if (!document.startViewTransition || reduced) {
         applyTheme(next);
-        persist();
         return;
       }
       const x = (e as MouseEvent).clientX || window.innerWidth - 48;
