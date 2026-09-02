@@ -2,11 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const skills = ['TypeScript', 'Astro', 'React', 'Node.js', 'Rust', 'WebGPU'];
-const links = [
-  { href: 'https://github.com/CXY0923', label: 'GITHUB' },
-  { href: 'mailto:me@cxy.blog', label: 'EMAIL' },
-  { href: '#', label: 'RSS(占位)' },
-];
+const email = '19516698519@163.com';
+const wechatId = 'wxid_3aiqihjzdyyk22_41c7';
+const github = 'https://github.com/CXY0923';
+const linkCls = 'text-on-surface-variant transition-colors hover:text-secondary';
 ---
 
 <BaseLayout title="ABOUT · NEON_LOG" description="关于 SYS_ADMIN_01。">
@@ -18,9 +17,9 @@ const links = [
       <h1 class="font-display text-3xl font-extrabold text-on-surface">SYS_ADMIN_01</h1>
       <p class="mt-1 font-mono text-xs uppercase tracking-widest text-primary">Lead Architect // 赛博架构师</p>
       <p class="mt-6 leading-relaxed text-on-surface-variant">
-        我是 cxy,一名对系统底层与视觉表达同样着迷的工程师。这个站点是我的外存大脑:结构化的知识放在 Notes 与 Docs,逃出格子的想法落在 Essays。
+        我是蔡兴艺,南京大学25级软件工程学生,会在这里记录课程笔记,项目开发,偶尔会有记录点人生感想。
       </p>
-      <p class="mt-4 leading-relaxed text-on-surface-variant">相信松耦合的人生,和严格的接口。</p>
+      <p class="mt-4 leading-relaxed text-on-surface-variant">联系通过 GitHub,邮件,微信联系</p>
     </div>
 
     <!-- 盒子只留给身份牌,其余信息用细线分节,避免卡片泛滥 -->
@@ -40,14 +39,51 @@ const links = [
     <section class="mt-8 border-t border-outline-variant pt-8">
       <h2 class="font-mono text-sm font-bold uppercase tracking-widest text-secondary">CONTACT_CHANNELS</h2>
       <div class="mt-5 flex flex-wrap gap-6 font-mono text-sm uppercase tracking-widest">
-        {
-          links.map((l) => (
-            <a href={l.href} class="text-on-surface-variant transition-colors hover:text-secondary">
-              {l.label}
-            </a>
-          ))
-        }
+        <a href={github} target="_blank" rel="noopener noreferrer" class={linkCls}>
+          GITHUB
+        </a>
+        <button type="button" data-copy={email} class={`cursor-pointer ${linkCls}`}>
+          <span data-label>EMAIL</span>
+        </button>
+        <button type="button" data-copy={wechatId} class={`cursor-pointer ${linkCls}`}>
+          <span data-label>WECHAT</span>
+        </button>
       </div>
     </section>
   </div>
 </BaseLayout>
+
+<script>
+  /* 点击复制:成功后标签变 COPIED ✓(2s 还原);clipboard API 不可用时退回 execCommand */
+  async function copyText(text: string): Promise<boolean> {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.append(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    }
+  }
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    const label = btn.querySelector<HTMLElement>('[data-label]')!;
+    const original = label.textContent;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    btn.addEventListener('click', async () => {
+      const ok = await copyText(btn.dataset.copy ?? '');
+      label.textContent = ok ? 'COPIED ✓' : 'COPY_FAILED';
+      label.classList.toggle('text-secondary', ok);
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        label.textContent = original;
+        label.classList.remove('text-secondary');
+      }, 2000);
+    });
+  });
+</script>
