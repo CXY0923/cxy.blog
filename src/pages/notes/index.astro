@@ -34,7 +34,7 @@ const categories = [...new Set(notes.flatMap((n) => n.data.tags))];
     }
   </div>
 
-  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+  <div class="grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3">
     {
       notes.map((n) => (
         <PostCard

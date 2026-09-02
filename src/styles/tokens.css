@@ -23,7 +23,8 @@
   --nl-glass-border: rgba(255, 255, 255, 0.5);
   --nl-glass-shadow: 0 8px 32px rgba(160, 228, 255, 0.1);
   --fx-scanline-display: none;
-  --fx-grid-opacity: 0.35;
+  /* 原稿规格:outline-variant / 20%。扁平日志行无卡片垫底,网格过强会透进内容区 */
+  --fx-grid-opacity: 0.2;
 }
 
 [data-theme='dark'] {

@@ -4,7 +4,7 @@ import { byDateDesc } from '../../lib/post-utils';
 import { formatDate } from '../../lib/fmt';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionTitle from '../../components/ui/SectionTitle.astro';
-import GlassCard from '../../components/ui/GlassCard.astro';
+import PostCard from '../../components/ui/PostCard.astro';
 import BackToTop from '../../components/ui/BackToTop.astro';
 
 const docs = byDateDesc(await getPublished('docs'));
@@ -24,17 +24,14 @@ const groups = [...new Set(docs.map((d) => d.data.category))].map((category) => 
       groups.map((g) => (
         <section>
           <SectionTitle title={g.category} />
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div class="flex flex-col">
             {g.docs.map((doc) => (
-              <GlassCard class="corner-bracket p-6 transition-all duration-300 hover:-translate-y-1 hover:border-secondary">
-                <div class="mb-2 flex items-center justify-between font-mono text-xs text-secondary opacity-70">
-                  <span>{formatDate(doc.data.date)}</span>
-                </div>
-                <h3 class="font-display text-lg font-bold text-primary hover:text-secondary">
-                  <a href={`/docs/${doc.id}/`}>{doc.data.title}</a>
-                </h3>
-                <p class="mt-2 line-clamp-2 text-sm text-on-surface-variant">{doc.data.description}</p>
-              </GlassCard>
+              <PostCard
+                title={doc.data.title}
+                href={`/docs/${doc.id}/`}
+                description={doc.data.description}
+                date={formatDate(doc.data.date)}
+              />
             ))}
           </div>
         </section>

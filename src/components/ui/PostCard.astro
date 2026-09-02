@@ -11,23 +11,32 @@ interface Props {
 const { title, href, description, date, tags = [], dataTags } = Astro.props;
 ---
 
+<!-- 扁平日志行:内容流不装盒(玻璃盒只留给常驻家具),细线分隔,hover 亮行 + 终端提示符 -->
 <article
   data-note-card
   data-tags={dataTags ?? tags.join(',')}
-  class="glass-panel corner-bracket group relative overflow-hidden rounded-lg p-6 transition-all duration-300 hover:-translate-y-1 hover:border-secondary"
+  class="group -mx-3 border-b border-outline-variant/60 px-3 py-5 transition-colors hover:bg-surface-container/30"
 >
-  <div class="mb-3 flex items-center justify-between gap-2">
+  <div class="mb-1.5 flex items-center justify-between gap-3">
     {
       tags.length > 0 && (
-        <span class="rounded border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
+        <span class="rounded border border-outline-variant px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-outline">
           {tags[0]}
         </span>
       )
     }
-    <span class="ml-auto font-mono text-xs text-secondary opacity-70">{date}</span>
+    <span class="ml-auto font-mono text-xs text-secondary/80">{date}</span>
   </div>
-  <h3 class="font-display text-lg font-bold text-primary transition-colors group-hover:text-secondary">
-    <a href={href}>{title}</a>
+  <h3 class="font-display text-lg font-bold text-on-surface transition-colors group-hover:text-primary">
+    <a href={href} class="flex items-baseline">
+      <span
+        aria-hidden="true"
+        class="inline-block w-0 overflow-hidden whitespace-nowrap font-mono text-sm font-normal text-secondary transition-all duration-200 group-hover:mr-1.5 group-hover:w-4 motion-reduce:hidden"
+      >
+        &gt;
+      </span>
+      {title}
+    </a>
   </h3>
-  <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-on-surface-variant">{description}</p>
+  <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-on-surface-variant">{description}</p>
 </article>

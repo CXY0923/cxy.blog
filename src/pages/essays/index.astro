@@ -34,16 +34,15 @@ const essays = byDateDesc(await getPublished('essays'));
             {essay.data.image ? (
               <img src={essay.data.image} alt={essay.data.title} width="800" height="500" loading="lazy" class="mb-4 w-full rounded-lg border border-tertiary/30 object-cover opacity-80 transition-opacity hover:opacity-100" />
             ) : null}
-            <div class="glass-panel corner-bracket rounded-lg p-6 transition-all duration-300 hover:-translate-y-1">
-              <div class="mb-2 font-mono text-xs text-tertiary opacity-70">{formatDate(essay.data.date)} // SYS_LOG</div>
-              <h2 class="mb-3 font-display text-xl font-bold text-primary">
-                <a href={`/essays/${essay.id}/`} class="hover:text-tertiary">{essay.data.title}</a>
-              </h2>
-              <p class="line-clamp-3 leading-relaxed text-on-surface-variant">{essay.data.description}</p>
-              <a href={`/essays/${essay.id}/`} class="mt-4 inline-block font-mono text-xs uppercase tracking-widest text-tertiary hover:text-primary">
-                READ_FULL_LOG →
-              </a>
-            </div>
+            <!-- 时间线条目不装盒:挂在霓虹轴上,最文学的一页保持安静 -->
+            <div class="font-mono text-xs text-tertiary/80">{formatDate(essay.data.date)} // SYS_LOG</div>
+            <h2 class="mt-2 font-display text-xl font-bold text-on-surface transition-colors">
+              <a href={`/essays/${essay.id}/`} class="hover:text-tertiary">{essay.data.title}</a>
+            </h2>
+            <p class="mt-2 line-clamp-3 leading-relaxed text-on-surface-variant">{essay.data.description}</p>
+            <a href={`/essays/${essay.id}/`} class="mt-3 inline-block font-mono text-xs uppercase tracking-widest text-tertiary hover:text-primary">
+              READ_FULL_LOG →
+            </a>
           </article>
         ))
       }

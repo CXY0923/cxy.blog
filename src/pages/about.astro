@@ -1,10 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import GlassCard from '../components/ui/GlassCard.astro';
 
 const skills = ['TypeScript', 'Astro', 'React', 'Node.js', 'Rust', 'WebGPU'];
 const links = [
-  { href: 'https://github.com/cxy', label: 'GITHUB' },
+  { href: 'https://github.com/CXY0923', label: 'GITHUB' },
   { href: 'mailto:me@cxy.blog', label: 'EMAIL' },
   { href: '#', label: 'RSS(占位)' },
 ];
@@ -24,9 +23,10 @@ const links = [
       <p class="mt-4 leading-relaxed text-on-surface-variant">相信松耦合的人生,和严格的接口。</p>
     </div>
 
-    <GlassCard class="mt-8 p-8">
-      <h2 class="mb-4 font-mono text-sm font-bold uppercase tracking-widest text-secondary">SKILL_MATRIX</h2>
-      <div class="flex flex-wrap gap-2">
+    <!-- 盒子只留给身份牌,其余信息用细线分节,避免卡片泛滥 -->
+    <section class="mt-12 border-t border-outline-variant pt-8">
+      <h2 class="font-mono text-sm font-bold uppercase tracking-widest text-secondary">SKILL_MATRIX</h2>
+      <div class="mt-5 flex flex-wrap gap-2">
         {
           skills.map((s) => (
             <span class="inline-flex items-center rounded-full border border-secondary/30 bg-surface-container px-3 py-1 font-mono text-xs text-secondary">
@@ -35,11 +35,11 @@ const links = [
           ))
         }
       </div>
-    </GlassCard>
+    </section>
 
-    <GlassCard class="mt-8 p-8">
-      <h2 class="mb-4 font-mono text-sm font-bold uppercase tracking-widest text-secondary">CONTACT_CHANNELS</h2>
-      <div class="flex flex-wrap gap-6 font-mono text-sm uppercase tracking-widest">
+    <section class="mt-8 border-t border-outline-variant pt-8">
+      <h2 class="font-mono text-sm font-bold uppercase tracking-widest text-secondary">CONTACT_CHANNELS</h2>
+      <div class="mt-5 flex flex-wrap gap-6 font-mono text-sm uppercase tracking-widest">
         {
           links.map((l) => (
             <a href={l.href} class="text-on-surface-variant transition-colors hover:text-secondary">
@@ -48,6 +48,6 @@ const links = [
           ))
         }
       </div>
-    </GlassCard>
+    </section>
   </div>
 </BaseLayout>

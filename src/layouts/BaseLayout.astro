@@ -7,11 +7,14 @@ import Footer from '../components/layout/Footer.astro';
 interface Props {
   title?: string;
   description?: string;
+  /** 全宽模式:脱离 max-w-7xl 盒子模型,内容延展到整个屏幕宽度(首页专用) */
+  full?: boolean;
 }
 
 const {
   title = 'NEON_LOG',
   description = 'Archive of a Cyber-Architect — 学习笔记、技术文档与个人随笔',
+  full = false,
 } = Astro.props;
 ---
 
@@ -66,11 +69,11 @@ const {
       })();
     </script>
   </head>
-  <body class="min-h-screen bg-surface font-body text-on-surface antialiased">
+  <body class="flex min-h-screen flex-col bg-surface font-body text-on-surface antialiased">
     <div class="scanline-overlay" aria-hidden="true"></div>
     <div class="grid-backdrop" aria-hidden="true"></div>
     <TopNav />
-    <main class="relative z-10 mx-auto w-full max-w-6xl px-4 pb-24 pt-28 md:px-16">
+    <main class:list={["relative z-10 w-full pb-24 pt-28", full ? "px-4 md:px-10" : "mx-auto max-w-7xl px-4 md:px-16"]}>
       <slot />
     </main>
     <Footer />
