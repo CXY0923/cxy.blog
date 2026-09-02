@@ -102,7 +102,11 @@ import { searchPosts, type SearchIndexEntry } from '../../lib/search';
       a.href = entry.url;
       a.className =
         'block rounded px-2 py-2 transition-colors hover:bg-surface-container/60 aria-selected:bg-surface-container/60';
-      a.addEventListener('click', () => close());
+      a.addEventListener('click', (e) => {
+        // 显式跳转,不依赖默认行为(点击处理器里 close() 会把本元素从 DOM 移除)
+        e.preventDefault();
+        window.location.assign(entry.url);
+      });
 
       const row = document.createElement('div');
       row.className = 'flex items-baseline justify-between gap-3';
@@ -157,6 +161,16 @@ import { searchPosts, type SearchIndexEntry } from '../../lib/search';
 
   input.addEventListener('focus', () => {
     if (input.value.trim() !== '') run(input.value);
+  });
+  /* click 兜底:已聚焦时再点不触发 focus,靠它重开面板 / 给空查询一个可见反馈 */
+  input.addEventListener('click', () => {
+    if (panel.hidden) {
+      if (input.value.trim() !== '') run(input.value);
+      else {
+        setStatus('TYPE_TO_SEARCH_');
+        open();
+      }
+    }
   });
   input.addEventListener('input', () => {
     clearTimeout(debounceTimer);
